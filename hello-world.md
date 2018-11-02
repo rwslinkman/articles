@@ -22,11 +22,12 @@ There's so many things I've learned, that I already forgot some of those.
 And that's a shame, you'll surely agree.  
 Here is my way to document my learnings.  
 Practical for me, (hopefully) useful for you and probably good laughing material in a few years.  
+You can expect reviews and example projects of tools I work/play with and sometimes I like to write more of a "developer story", if that makes sense.  
 
 I will be writing these articles on GitHub on a feel-like-it basis and they will be displayed on my website!  
 Visit [my website](https://rwslinkman.nl) if you're not already there :)  
 
-_Great stuff, but I thought this was about tech?_  
+_Great stuff, but I thought this was about tech and software?_  
 Yes, so I'll tell you about the feature I built into my (customly built) website to display my articles.  
 
 ## Articles feature
@@ -59,5 +60,35 @@ For example:
 - Can I choose which articles to "feature" on my home page?
 - Is this possible without complicated authentication systems?
 
-I did a little research and came up with this idea:  
-[image goes here]
+### Solutions
+Being notified on article updates from GitHub was pretty easy.  
+I've had an account there for a while now and I noticed the `Webhooks` settings page before.  
+Until now, I had never used it before.  This was a great opportunity to do so.  
+
+GitHub is well documented so finding out how their webhooks work was not that hard.   
+I found [this guide from GitHub](https://developer.github.com/v3/activity/events/types/#pushevent) themselves that explains what data you get from a `PushEvent` webhook.  
+The interface that GitHub offers to configure a webhook is very easy to use.  
+All I needed to do was to create an endpoint to handle the webhook. More on that later.  
+
+I figured that I could download the `*.md` article files from GitHub to my PHP webserver.  
+That way, I could prevent creating an extra hop to GitHub to read the requested article on my website.  
+Also, it would allow me to have a cache of all articles I have and create an overview of them.  
+So I thougth some sort of `ArticleFetcher` would be in place.  
+
+Having an overview of all articles also offers the possibility to manage the articles.  
+I designed a service that would be notified when the fetcher completes its job.  
+In my admin panel, I would be able to update the article's visibility and other attributes.  
+Lastly, I designed some `Controllers` to handle HTTP requests and show the articles. 
+
+On a pratical note, I still had no idea on how to parse Markdown into HTML.  
+I did some research and finally found [this great library](https://github.com/erusev/parsedown) that does all the heavy lifting for me.  
+Parsedown does a line-by-line parsing and returns separate HTML lines.  
+This is ofcourse something I could work with!  
+
+With this information I drew my feature architecture and started building.  
+I'll discuss the tools and techniques I have used to build this.  
+The complete image looks a little like this:
+![Articles architecture](hello-world/Website_Articles_SysArch.png "The setup I want to achieve")
+
+### Webhooks
+// TODO
