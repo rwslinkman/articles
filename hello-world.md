@@ -174,4 +174,6 @@ The `ArticleFetcherService` lives in the service container, which is part of Sym
 In every `Controller` and `Service` I am able to access the services that live there.  
 This makes it easy to call such a service from basically anywhere in the application.  
 
-Now that I have a filled "cache" with my articles
+Now that I have a filled "cache" with my articles, this brought a few issues to mind:  
+- I know when articles are updated, but applying the changes using Git seems a bit too much. 
+- Not exactly knowing which files have changed, means that all or any of them changed.  
