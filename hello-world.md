@@ -39,10 +39,10 @@ We built all kinds of websites for small to medium size companies in the area.
 I decided to build myself a website, since that would look cool on my CV.  
 So I did, in PHP, ofcourse.  
 
-My project has started in 2015 and is built on the Symfony framework.  
+My project has started in 2013 and is built on the Symfony framework, version 2.3 at that time.  
 Ever since, I have been upgrading and it is currently one of the latest versions.  
 Professionally, I do not work on PHP projects anymore, but I still enjoy writing PHP.  
-The newest upgrade will be the Articles feature.  
+The newest upgrade of my website will be the Articles feature.  
 
 ### First thoughts
 Since Markdown became a thing in open source software projects, I've found it easy to use.  
@@ -91,4 +91,48 @@ The complete image looks a little like this:
 ![Articles architecture](hello-world/Website_Articles_SysArch.png "The setup I want to achieve")
 
 ### Webhooks
-// TODO
+GitHub offers a very nice interface to configure webhooks per-repository.  
+It took me only a few seconds to create one.  
+You just fill out their form in the `Settings` menu in your repository.  
+
+![GitHub's webhook configuration interface](hello-world/github_webhook_setup.png) 
+
+There is a field where you can enter a password that GitHub will use when calling you.  
+This can be used to prevent unwanted webhook triggers.  
+You'll find the password, in an encrypted format, in the `X-Hub-Signature` header.  
+In the headers, you will also find `X-GitHub-Delivery`, an ID that you can refer to on the GitHub website.  
+Lastly there is the `X-GitHub-Event` event type header.  
+
+After setting up your webhook, you can make GitHub send a test event to your webhook.  
+That's really great, because you can immediately see you webhook work!  
+Here's an example of how the delivery log looks:  
+
+![GitHub's webhook log](hello-world/github_webhook_tester.png) 
+
+I built a very simple `Controller` to catch the webhook and handle it.  
+Here you can see the `ArticleFetcherService` that is called to fetch article data from GitHub.  
+Also, I log a simple message about the webhook trigger in my logging system.  
+Finally a simple `Response` object is returned, which is the equivalent of an empty `HTTP 200` response.
+
+```php
+class WebHooksController extends Controller
+{
+    public function githubArticlesHook() {
+
+        /** @var ArticleFetcherService $articleFetcher */
+        $articleFetcher = $this->get(ServiceEnum::ARTICLE_FETCHER);
+        $articleFetcher->fetchArticles();
+
+        /** @var LoggingService $loggingService */
+        $loggingService = $this->get(ServiceEnum::LOGGING);
+        $logMessage = "Web hook fired: GitHub Articles repository update notification";
+        $logEntry = LogEntry::create(LogType::SYSTEM_NOTICE, LogSeverity::INFO, $logMessage);
+        $loggingService->log($logEntry);
+
+        return new Response();
+    }
+}
+```
+
+### Fetching articles
+TODO
