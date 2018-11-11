@@ -175,5 +175,20 @@ In every `Controller` and `Service` I am able to access the services that live t
 This makes it easy to call such a service from basically anywhere in the application.  
 
 Now that I have a filled "cache" with my articles, this brought a few issues to mind:  
-- I know when articles are updated, but applying the changes using Git seems a bit too much. 
-- Not exactly knowing which files have changed, means that all or any of them changed.  
+- I know **when** articles are updated, but applying the changes using Git seems a bit too much. 
+- Not exactly knowing **which** files have changed, means that **all or any** of them changed.  
+- Files might be deleted and the `ArticleFetcherService` wouldn't find out.
+
+Because of this, I implemented a "clean" fetch. All articles are downloaded newly every time.  
+This saves me the effort of going through all the changes.  
+Comparing images, that I will use to decorate the articles, is a difficult thing to do.  
+I surely wanted to skip that in order to roll out the articles feature quickly.
+
+The KnpLabs library downloads all files in the same way.  
+It was therefor quite easy to build a recursive function to download assets in directories within the repository.  
+
+### Reading articles
+TODO - write about converting markdown to html
+
+### To show or not to show  
+TODO - write about article state management
