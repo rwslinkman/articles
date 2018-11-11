@@ -135,4 +135,43 @@ class WebHooksController extends Controller
 ```
 
 ### Fetching articles
-TODO
+The GitHub API has a request limit, which means you can only query it so many times every hour.  
+In the miraculous event my website would ever get an insane amount of traffic, that would mean lots of requests to said API.  
+The first few requests would be able to read my articles perfectly fine, but the other ones would see nothing.  
+This is something I wanted to avoid, so I decided to cache my articles on my webserver.  
+
+Filling up the cache easier than expected, mostly thanks to the great [PHP GitHub API library by KnpLabs](https://github.com/knplabs/php-github-api/) I found.  
+It offers a simple way of querying a GitHub repository and it's metadata.  
+The `Repo` API made it possible to get information about all the files inside the repository.  
+Using this, I could gather all the files I needed, like so:  
+
+```php
+public function getFilesMetadata($path = null) {
+    $githubClient = new Client();
+    /** @var Repo $repoApi */
+    $repoApi = $githubClient->api('repo');
+    return $repoApi->contents()->show(self::ARTICLES_REPO_OWNER, self::ARTICLES_REPO_NAME, $path);
+}
+```
+The `$path` parameter allows to query subdirectories directly.  
+When left at `null` it gets the repository's root diretory files.  
+
+Using the same library, downloading file contents was very straightforward.  
+The previous function returns the correct file paths, which you can use as follows:  
+
+```php
+public function downloadFileContent($pathInRepo) {
+    $githubClient = new Client();
+    /** @var Repo $repoApi */
+    $repoApi = $githubClient->api('repo');
+    return $repoApi->contents()->download(self::ARTICLES_REPO_OWNER, self::ARTICLES_REPO_NAME, $pathInRepo);
+}
+```
+
+These functions are all used by my `ArticleFetcherService` that fetches the articles.  
+It is has a `fetchArticles` function that gets called on every incoming webhook.  
+The `ArticleFetcherService` lives in the service container, which is part of Symfony's `Kernel`.  
+In every `Controller` and `Service` I am able to access the services that live there.  
+This makes it easy to call such a service from basically anywhere in the application.  
+
+Now that I have a filled "cache" with my articles
