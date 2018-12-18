@@ -188,7 +188,84 @@ The KnpLabs library downloads all files in the same way.
 It was therefor quite easy to build a recursive function to download assets in directories within the repository.  
 
 ### Reading articles
-TODO - write about converting markdown to html
+Having the Markdown formatted article files on the server's local drive felt like a good idea.  
+First of all, I was able to respect the GitHub API limit.  
+Secondly, I have a back-up in the miraculous case GitHub loses the files.  
+But having just those files isn't enough, ofcourse.  
+Markdown files don't fit my website's design and browsers don't handle Markdown so well.  
+To be able to display the articles on my website, they should be converted to HTML.  
+This is not a task I want to take on myself, so I started looking for a library that does it for me.  
+
+A quick Google search for `php markdown to html` lead me to [Parsedown](https://github.com/erusev/parsedown).  
+It's an easy to use library that converts Markdown to HTML on a line-by-line basis.  
+To me this sounded sufficient and I was able to setup Parsedown within 10 minutes.  
+
+// TODO: Image here . 
+
+As you can see, converting my article lines from Markdown to HTML is pretty simple.  
+I used PHP's `trim` function to clean up the Markdown line.  
+This does take away the double whitespace that indicates a newline, but Parsedown convertes every line to a `<p>` tag.  
+That means I don't have to mind newlines and can consider an empty string to be whitespace between sections.  
+
+So that renders the Markdown on my web page, but it loaded none of the images.  
+I quickly found out that the images were not automatically mapped (duh) and pointed the wrong way.  
+With some simple regex I now replace the old path with a path to the actual image asset on server.  
+I also wanted to modify how whitespace was rendered, so I started thinking of a nice way to do this.  
+Some simple classes were built for both operations, for whitespace and for image paths.  
+I've decided to decorate them with a nice enterprisy interface called `ParsingManipulator`.  
+Each manipulator would do a simple manipulation on a specific piece of parsed Markdown.  
+Finally I ended up with the `ImagePathManipulator` and the `EmptyLineManipulator`.  
+Simple and it does the job, just the way I like it.  
+The completed parsing section my PHP code now looks like the image below.  
+
+// TODO Image here
+
+Rendering the web page this time gave me a way better look.  
+The titles were displayed nicely, the images were showing, it was actually building up nicely!  
+Only one thing was still looking weird, the most important part of the page: code sections.  
+Code sections were rendered with a nicely formatted empty line of code at the top and bottom.  
+In the middle, there was my code, but in plain text.  
+Here I found the first disadvantage of line-by-line parsing.  
+The begin and end marker of my code sections now ended up being separate but empty code sections in HTML.
+It wasn't hard to overcome though, especially with the `ParsingManipulator` freshly built.  
+
+My plan was to render ```<pre><code>``` instead of the top empty code line, and ```</code></pre>``` at the bottom.  
+Finding code lines was easy, as the source Markdown line is simply 3 backticks.
+Now I can detect where code a section begins or ends, but not distinct them.
+It meant the manipulator needs to keep state.  
+I found that a simple counter with a modulo operator worked sufficiently.  
+The first time I return HTML that starts the code section, the second time I return closing HTML tags.  
+
+Rendering again showed that my full articles are now rendered nicely!  
+I was happy to see that my feature was nearing its completion.  
+That is what I thought at least..   
 
 ### To show or not to show  
-TODO - write about article state management
+So there I was, sitting happily with my `Articles` feature.  
+I was browsing the simple overview page I built and then it hit me.  
+What if I wanted to hide articles? Or feature them on the index page?  
+Maybe in the future I want to show more metadata about the article.  
+I decided to build some toggles for displaying and don't worry about the future too much.  
+
+Managing metadata was already done for me, because the files are in a GitHub repository.
+Even the history is managed. Obvious for source code, but for writing articles a new experience for me.  
+I already built a `ArticleFetcherService` that grabs the files, so why not manage some extra's there.
+
+Thinking of it, I found it was a little out of scope for the `ArticleFetcherService`.  
+Next to that, I also need a `Service` that handles entity updates from my CMS.  
+Very originally, I came up with `ArticleManagerService` with a `onArticleDownloaded` hook hanging on the side.  
+This managing service will simply save a simple metadata `Entity` to the database.  
+It will be used to toggle visibility with a basic boolean attribute in the table.  
+
+### Rounding up
+I could tell you about how I built some CRUD stuff to manage the metadata entities.  
+Wouldn't that be very boring? I think so.  
+Ultimately it is about the end result, and the end result is there!
+Maybe you're already looking at it.  
+The articles are written, fetched, converted and shown and most of it is automated.
+Automation is great so I'm really happy with the result.
+
+So here I present you my `Articles` feature.  
+For me this is a new way to express what is inside me, thousands of thoughts about software and such.  
+A way of documenting what I have learned about code, technology, innovation and the software industry.  
+Thanks for taking the time to read this article and hopefully see you again soon!
