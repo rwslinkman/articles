@@ -200,7 +200,7 @@ A quick Google search for `php markdown to html` lead me to [Parsedown](https://
 It's an easy to use library that converts Markdown to HTML on a line-by-line basis.  
 To me this sounded sufficient and I was able to setup Parsedown within 10 minutes.  
 
-// TODO: Image here . 
+![Parsedown converts Markdown to HTML line-by-line](hello-world/parse1.png) 
 
 As you can see, converting my article lines from Markdown to HTML is pretty simple.  
 I used PHP's `trim` function to clean up the Markdown line.  
@@ -218,7 +218,7 @@ Finally I ended up with the `ImagePathManipulator` and the `EmptyLineManipulator
 Simple and it does the job, just the way I like it.  
 The completed parsing section my PHP code now looks like the image below.  
 
-// TODO Image here
+![Manipulators help to convert the harder bits of Markdown](hello-world/parse2.png) 
 
 Rendering the web page this time gave me a way better look.  
 The titles were displayed nicely, the images were showing, it was actually building up nicely!  
