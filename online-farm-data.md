@@ -62,10 +62,21 @@ Whatever you can come up with, could be a trigger for your function.
 For my use case, I needed a way to build up history from a real time data API.   
 Polling the API is definitely the way to go here.   
 This could be perfectly set up with a cron job.   
-I chose 5 minutes to be my interval and then I started thinking.   
 Running an external system to send triggers to my cloud function using HTTP seemed very error prone.   
 So is there a way you can run a cron job in the cloud?    
 It would really offload a lot of work for me, which is nice for a basic pet project like this.   
+
+I chose 5 minutes to be my cron interval and then I started thinking.   
+Next, the idea is to call the Farm API, take whatever data I need and store it over time.   
+Not being bothered to setup an actual database of file storage, I opted for [jsonstore.io](https://www.jsonstore.io/).   
+It offers a very basic REST endpoint where you can store any JSON data you need.   
+You are provided with an unique ID that you use in the HTTP calls to your jsonstore.   
+There is no authentication available at jsonstore, so that means keeping your ID very secret!
+Although I am aware this is very bad in terms of security, this solution is alright I plan to openly publish the statistics anyway.   
+
+My full solution looks like the image below.   
+It will involve a cloud cron ticker and a cloud function, combined with jsonstore.   
+![Farm Data Harvester - Solution design](online-farm-data/dataharvester-solution.png)
 
 #### Setting up the cron ticker
 With most questions, I am probably not the first person to come up with this question.   
