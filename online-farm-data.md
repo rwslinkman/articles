@@ -71,7 +71,7 @@ Next, the idea is to call the Farm API, take whatever data I need and store it o
 Not being bothered to setup an actual database of file storage, I opted for [jsonstore.io](https://www.jsonstore.io/).   
 It offers a very basic REST endpoint where you can store any JSON data you need.   
 You are provided with an unique ID that you use in the HTTP calls to your jsonstore.   
-There is no authentication available at jsonstore, so that means keeping your ID very secret!
+There is no authentication available at jsonstore, so that means keeping your ID very secret!   
 Although I am aware this is very bad in terms of security, this solution is alright I plan to openly publish the statistics anyway.   
 
 My full solution looks like the image below.   
@@ -94,7 +94,7 @@ My use case required really nothing but a cron job, so I chose the smallest scal
 
 Configuring an AppEngine is very easy, assuming that you have the `gcloud` command line tools set up properly.   
 To create an `app` in Google AppEngine, you just run the following command.   
-You can find my `app.yaml` configuration below that keeps the instance scale to a minimum.
+You can find my `app.yaml` configuration below that keeps the instance scale to a minimum.   
 It has the smallest instance type and the smallest automatic scaling set up.   
 I picked NodeJS 8 as the `runtime` so the AppEngine instance will have that automatically installed.   
 After booting, it will look for an `app.js` file to run.   
@@ -126,3 +126,6 @@ Google offers a very useful [NPM package](https://www.npmjs.com/package/@google-
 Since I'm only interested in the event itself, it does not matter what I put in the PubSub message.   
 After succesfully publishing, it logs a message to the Google Cloud and shuts down.   
 So now, there is a message on the PubSub topic and I need a Cloud Function to act on it!
+
+#### Serverless listening to the PubSub topic
+TODO
