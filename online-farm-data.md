@@ -1,5 +1,7 @@
 # Having fun with Farming Simulator and Google Cloud
 
+// TODO Add links everywhere
+
 Enjoying the work I do is very important to me.   
 There always has to be a challenge in it, but having fun with colleagues is also a big factor.  
 I love to dig deep into a subject sometimes to master it and teach other what I've learned.   
@@ -10,7 +12,7 @@ When they asked me about the games in my Steam library, I said "Well, amongst ot
 You should have seen the look on their faces.   
 First they thought I was crazy, but to me it is a game that you can play without the pressure to "win".   
 After a day of work I'm not in the mood for a shooter that gives you an adrenaline rush.   
-I rather enjoy a *slow game* that really takes away stres.  
+I rather enjoy a *slow game* that really takes away stress.  
 Farming Simulator is great for this and their latest edition [Farming Simulator 19](https://store.steampowered.com/app/787860/Farming_Simulator_19/) is a great piece of work!  
 
 ![Farming Simulator 2019](online-farm-data/fs19_headliner.jpg)
@@ -62,7 +64,12 @@ Whatever you can come up with, could be a trigger for your function.
 For my use case, I needed a way to build up history from a real time data API.   
 Polling the API is definitely the way to go here.   
 This could be perfectly set up with a cron job.   
-Running an external system to send triggers to my cloud function using HTTP seemed very error prone.   
+Futhermore, it's by definition a background process, for which Serverless is very useful.   
+All I want is to convert some farm data into my own data model.   
+Translating data is a very good use case for Serverless, since you don't have to worry about the availability of the function.   
+
+I considered setting up a Raspberry Pi to send HTTP requests to trigger my Serverless function.   
+Running an external system to send triggers to function seemed very error prone, though.   
 So is there a way you can run a cron job in the cloud?    
 It would really offload a lot of work for me, which is nice for a basic pet project like this.   
 
@@ -72,10 +79,11 @@ Not being bothered to setup an actual database of file storage, I opted for [jso
 It offers a very basic REST endpoint where you can store any JSON data you need.   
 You are provided with an unique ID that you use in the HTTP calls to your jsonstore.   
 There is no authentication available at jsonstore, so that means keeping your ID very secret!   
-Although I am aware this is very bad in terms of security, this solution is alright I plan to openly publish the statistics anyway.   
+Although I am aware this is very bad in terms of security, this solution is alright, I plan to openly publish the statistics anyway.   
 
 My full solution looks like the image below.   
 It will involve a cloud cron ticker and a cloud function, combined with jsonstore.   
+
 ![Farm Data Harvester - Solution design](online-farm-data/dataharvester-solution.png)
 
 #### Setting up the cron ticker
@@ -94,19 +102,21 @@ My use case required really nothing but a cron job, so I chose the smallest scal
 
 Configuring an AppEngine is very easy, assuming that you have the `gcloud` command line tools set up properly.   
 To create an `app` in Google AppEngine, you just run the following command.   
-You can find my `app.yaml` configuration below that keeps the instance scale to a minimum.   
+You can find my `app.yaml` configuration below that keeps the instance scale to a minimum. 
+
+```
+gcloud app create
+```
+
 It has the smallest instance type and the smallest automatic scaling set up.   
 I picked NodeJS 8 as the `runtime` so the AppEngine instance will have that automatically installed.   
 After booting, it will look for an `app.js` file to run.   
 Once it is found, it will be executed and you can run your NodeJS app from that point on!
 
-```
-gcloud app create
-```
 ![AppEngine configuration for the cloud cron ticker](online-farm-data/dataharvest-appengine-app.png)
 
 Conveniently, AppEngine also has a very simple way of configurating cron jobs for AppEngine instances.   
-It requires specifying a `cron.yaml` file in the project root, right next to `app.yaml`.   
+You specify a `cron.yaml` file somewhere; I chose to put it in the project root, right next to `app.yaml`.   
 The cron file is also picked up by the [Google Cloud Console](https://console.cloud.google.com) web interface.   
 For multiple cron jobs, simply specify more entries to the array.   
 My `cron.yaml` configuration looks like the screenshot below.   
@@ -125,6 +135,13 @@ The code for it is quite simple and looks like this.
 Google offers a very useful [NPM package](https://www.npmjs.com/package/@google-cloud/pubsub) to push messages onto the topic.  
 Since I'm only interested in the event itself, it does not matter what I put in the PubSub message.   
 After succesfully publishing, it logs a message to the Google Cloud and shuts down.   
+Last thing left to do is deploying your `app.yaml` and `cron.yaml` to Google Cloud.   
+It is done quite easily using the following command:   
+```
+gcloud app deploy --quiet app.yaml cron.yaml
+```
+**the `--quiet` flag is optional*
+
 So now, there is a message on the PubSub topic and I need a Cloud Function to act on it!
 
 #### Serverless listening to the PubSub topic
