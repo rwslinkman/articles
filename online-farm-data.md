@@ -49,7 +49,7 @@ For those who feel unfamiliar: the idea is that you just write the code and let 
 You basically just code what it **does**, not necessarily **how** or **where**.   
 A great example of this are *Cloud Functions*.   
 
-Probably you have heard of AWS Lambda's, Google Cloud Function or Azure Functions.   
+Probably you have heard of [AWS Lambdas](https://aws.amazon.com/lambda/), [Google Cloud Functions](https://cloud.google.com/functions) or [Azure Functions](https://azure.microsoft.com/en-gb/services/functions/).   
 You specify a trigger and the cloud will execute your *function* to handle it.   
 Triggers could be many things, amongst others:
 - HTTP requests
@@ -85,7 +85,8 @@ Configuring an AppEngine is very easy, assuming that you have the `gcloud` comma
 To create an `app` in Google AppEngine, you just run the following command.   
 You can find my `app.yaml` configuration below that keeps the instance scale to a minimum.
 It has the smallest instance type and the smallest automatic scaling set up.   
-I picked NodeJS 8 as the `runtime` so the AppEngine instance will have that automatically installed and will look for an `app.js` file to run.   
+I picked NodeJS 8 as the `runtime` so the AppEngine instance will have that automatically installed.   
+After booting, it will look for an `app.js` file to run.   
 Once it is found, it will be executed and you can run your NodeJS app from that point on!
 
 ```
@@ -99,7 +100,18 @@ The cron file is also picked up by the [Google Cloud Console](https://console.cl
 For multiple cron jobs, simply specify more entries to the array.   
 My `cron.yaml` configuration looks like the screenshot below.   
 
-![Cron job specification for AppEngine instances](online-farm-data/dataharvest-appengine-cron.png)
+![Cron job specification for AppEngine instances](online-farm-data/dataharvester-appengine-cron.png)
 
-It triggers a very simple NodeJS script running on the same instance.   
-The `url` property in the cron job 
+The `description` property is only used by the Console to show you what the cron job is for.   
+Google defined a basic timing format, an example is shown in the `schedule` property.   
+The `url` property in the cron job points to a GET endpoint on **localhost**, the AppEngine instance itself.   
+Here, the NodeJS app is running. [Express.js](https://expressjs.com/) is waiting for requests to put a message on the PubSub topic.   
+The code for it is quite simple and looks like this.   
+
+![App code to put messages on PubSub topics](online-farm-data/dataharvester-publisher.png)
+*Boilerplate code for setting up an Express.js app was omitted for convenience*
+
+Google offers a very useful [NPM package](https://www.npmjs.com/package/@google-cloud/pubsub) to push messages onto the topic.  
+Since I'm only interested in the event itself, it does not matter what I put in the PubSub message.   
+After succesfully publishing, it logs a message to the Google Cloud and shuts down.   
+So now, there is a message on the PubSub topic and I need a Cloud Function to act on it!
