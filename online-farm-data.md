@@ -205,7 +205,32 @@ In my project, I wrote a simple helper that calls the `jsonstore.io` API and it 
 This completes my mission to harvest farm data and store it over time!   
 I think it came together really nicely and I regularly check the storage to see my farm statistics.   
 My colleagues think it's really fun and we compete with eachother over better statistics.   
-Ofcourse, fun is the most important here! This is a nice addition to the fun we have playing Farming Simulator together.   
+Ofcourse, fun is the most important here! 
+This is a nice addition to the fun we have playing Farming Simulator together.   
 
 ### Look at my harvest!
-// TODO
+My farm data statistics are building up nicely after I deployed it to the cloud.   
+It has been gathering data every five minutes for the last 5 weeks and still going strong!   
+On a random Thursday evening I showed this to my friend and we discussed how to display it.   
+He recommended using Vue.js but I haven't given it any thought so far.   
+First of all, I need to protect my `jsonstore.io` unique ID when reading my farm statistics.   
+
+I decided use another Cloud Function as a proxy for my `jsonstore.io` storage.   
+This can be easily triggered using HTTP and it basically returns what is stored.   
+Very plain and simple, as you will see in the code below.   
+
+![This is everything there is to use a function as a proxy](online-farm-data/dataharvester-readout.png)   
+
+If you are interested in the state of my farm, check out [the readout](https://europe-west1-dt-farm.cloudfunctions.net/harvesterReadOut) right here!   
+Still, I have no flashy dashboard to show you.   
+Unfortunality I haven't found the time to design and build something like this.   
+If you do, feel free to use the link above and let me know what you built!   
+
+I have had a lot of fun building this and I learned quite a few things.   
+Mostly, I have gotten more familiar with the Google Cloud and its features.   
+We have had a good couple of laughs over the statistics with the colleagues.  
+Definitely, we are looking forward to more hours of happy farming.   
+Maybe we will see you sometime on an online farm!   
+
+A very big thank you for reading this article all the way to the end.  
+Bye!
