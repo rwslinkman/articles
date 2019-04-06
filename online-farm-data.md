@@ -145,4 +145,67 @@ gcloud app deploy --quiet app.yaml cron.yaml
 So now, there is a message on the PubSub topic and I need a Cloud Function to act on it!
 
 #### Serverless listening to the PubSub topic
-TODO
+Since my *cloud cron ticker* was already running in the Google Cloud, choosing for Google Cloud Functions was pretty obvious.   
+Within the same Google Cloud project, it is quite easy to setup a Cloud Function using the command line:   
+```
+gcloud functions deploy cronHarvestTick --trigger-topic five-minute-tick --runtime nodejs8 --region europe-west1
+```
+
+Note that the value for the `--triger-topic` option is the same as the as the topic the AppEngine instance is publishing to.   
+Additionally, I chose to override the default Node 6 runtime and I chose the region closest to the Farm server.   
+Using the command line is the only way to specify what triggers your function.   
+When running this command, it will look for an `index.js` file that exports the function name specified.   
+In my case that is `cronHarvestTick`. This function will listen to the PubSub topic called `five-minute-tick`.   
+
+I can recommend following [the tutorial by Google](https://cloud.google.com/functions/docs/tutorials/pubsub) for setting up your Cloud Function.   
+Within minutes you will have a basic function running in the cloud.   
+A function in it's most basic way looks like this:   
+
+```
+exports.cronHarvestTick = (event) => {
+  console.log("Hello world");
+  return true;
+}
+```
+
+The `event` parameter is what has caused your trigger to run.   
+Google fills it with the PubSub event in my case.   
+Since I'm only interested in the occurence of the event itself, I will ignore [the data that Google puts in](https://cloud.google.com/functions/docs/calling/pubsub) altogether.   
+When the event occurs, I will call the Farm API to see what the server state currently is.   
+A very good NPM package to use is [request-promise](https://www.npmjs.com/package/request-promise) which simplifies HTTP requests.   
+It allows configuration to automatically convert JSON strings to JavaScript objects.   
+Perfect for my NodeJS based function.   
+In a very similar way, I call the jsonstore.io API to store the data I have extracted from the farm.  
+The API also works with HTTP, so I can also have `request-promise` do the heavy lifting.   
+
+Between fetching and storing the harvested farm data, I do some translations on it.   
+I will not bother you with the details of that, but nice to mention are the Promises.   
+Personally I appreciate the idea of Promises and like working with it.   
+With Google Cloud Functions, it is important to get your Promises right.   
+Their engine relies on whatever you return.   
+When the returned Promise is finished, your runtime is shut down.   
+If you have something else running in the meantime, you will lose its progress.   
+You will find out soon enough if you have messed up, as the Google Cloud Console log traces will show you an error in that case.   
+
+Those who are familiar with JavaScript and NodeJS, will find this a very convenient way of setting up a background task.   
+Every five minutes, my function will run and do its thing.   
+No need to worry about if the machines are online or about security of those machines.  
+I think this is a nice example of the Serverless principle.   
+
+My data is stored with `jsonstore.io`, which has no guarentees but still holds stores my data nicely so far.   
+On every 5 minute tick, I update my entry with the ID is was given at the start.   
+Every update is a call to the REST interface of `jsonstore.io`.   
+Their API is really simple and when fetching your data, it wraps it in an object.   
+The object has two properties: `result` which is your stored JSON blob and `ok` which is a boolean that reports the response status.   
+In my project, I wrote a simple helper that calls the `jsonstore.io` API and it looks like this:   
+
+![Calling the jsonstore.io API using a helper](online-farm-data/dataharvester-jsonstore.png)    
+**The shorthand `rp` stands for `request-promise` which is imported before this code section.*
+
+This completes my mission to harvest farm data and store it over time!   
+I think it came together really nicely and I regularly check the storage to see my farm statistics.   
+My colleagues think it's really fun and we compete with eachother over better statistics.   
+Ofcourse, fun is the most important here! This is a nice addition to the fun we have playing Farming Simulator together.   
+
+### Look at my harvest!
+// TODO
