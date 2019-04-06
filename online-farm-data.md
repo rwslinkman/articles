@@ -1,7 +1,5 @@
 # Having fun with Farming Simulator and Google Cloud
 
-// TODO Add links everywhere
-
 Enjoying the work I do is very important to me.   
 There always has to be a challenge in it, but having fun with colleagues is also a big factor.  
 I love to dig deep into a subject sometimes to master it and teach other what I've learned.   
