@@ -55,7 +55,7 @@ Probably you have heard of [AWS Lambdas](https://aws.amazon.com/lambda/), [Googl
 You specify a trigger and the cloud will execute your *function* to handle it.   
 Triggers could be many things, amongst others:
 - HTTP requests
-- A message appeard on a message queue
+- A message appeared on a message queue
 - Someone asked a question to your Google Home or Alexa app
 - File uploads to your storage buckets 
 - Database CRUD events
@@ -151,7 +151,7 @@ Within the same Google Cloud project, it is quite easy to setup a Cloud Function
 gcloud functions deploy cronHarvestTick --trigger-topic five-minute-tick --runtime nodejs8 --region europe-west1
 ```
 
-Note that the value for the `--triger-topic` option is the same as the as the topic the AppEngine instance is publishing to.   
+Note that the value for the `--trigger-topic` option is the same as the as the topic the AppEngine instance is publishing to.   
 Additionally, I chose to override the default Node 6 runtime and I chose the region closest to the Farm server.   
 Using the command line is the only way to specify what triggers your function.   
 When running this command, it will look for an `index.js` file that exports the function name specified.   
